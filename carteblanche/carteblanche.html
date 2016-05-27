@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="content/bootstrap/css/bootstrap.css">
+
+    <script src="content/script/jquery.js"></script>
+    <script src="content/bootstrap/js/bootstrap.js"></script>
+    <script src="content/script/angular.js"></script>
+    <script src="content/script/angular-draganddrop.js"></script>
+
+    <script>
+        angular.module("cbApp", ["draganddrop"]);
+    </script>
+
+    <script src="content/script/app/idcounter.js"></script>
+    <script src="content/script/app/lights.js"></script>
+    <script src="content/script/app/grid.js"></script>
+    <script src="content/script/app/cbController.js"></script>
+
+    <style type="text/css">
+
+        .grid{
+            margin-bottom: 20px;
+        }
+
+        .gridCell {
+            border: 1px solid black;
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            text-align: center;
+            vertical-align: middle;
+            line-height:30px;
+        }
+
+        .bar {
+            height: 30px;
+            width: 30px;
+            border-left: grey 1px dotted;
+            border-top: grey 1px dotted;
+            margin: 5px;
+        }
+
+        .bar-right {
+            border-right: black 3px solid;
+            border-bottom: black 1px solid;
+        }
+        .bar-bottom {
+            border-right:black 1px solid;
+            border-bottom:black 3px solid;
+        }
+        .bar-both {
+            border-right:black 3px solid;
+            border-bottom:black 3px solid;
+        }
+        .white-light {
+            border:black 1px dotted;
+        }
+        .black-light {
+            border:black 1px solid;
+            background-color:black;
+        }
+
+        .tool {
+            height:50px;
+            width:50px;
+        }
+    </style>
+
+
+</head>
+<body class="container" ng-app="cbApp" ng-controller="cbController">
+    
+    <div class="alert alert-warning" ng-show="messages.warning">
+        {{messages.warning}}
+        <div class="btn btn-primary" ng-click="dismissMessages()">Close</div>
+    </div>
+    <div class="alert alert-info" ng-show="messages.info">
+        {{messages.info}} 
+        <div class="btn btn-primary" ng-click="dismissMessages()">Close</div>
+    </div>
+    <h2>Carte Blanche</h2>
+    
+    <div class="row">
+
+        <div class="col-xs-6">
+
+            <div class="grid" ng-style="gridStyle" title="drag solutions onto the grid">
+
+                <div class="gridCell"
+                     ng-attr="cell.id"
+                     id="{{cell.id}}"
+                     drop="onDrop($data, $event)"
+                     drop-effect="copy"
+                     drop-accept="['json/bar', 'json/light', 'json/white-light', 'json/black-light' ]"
+                     ng-repeat="cell in grid.cells"
+                     ng-style="cell.getStyle()"
+                     ng-bind="cell.letter"
+                     ng-click="onCellClick(cell.id)">
+                </div>
+            </div>
+
+            <p>
+                <div class="btn btn-primary" ng-click="clearLights()" title="remove the solutions from the grid">Remove all letters</div>
+                <div class="btn btn-primary" ng-click="clearDecorations()" title="remove the solutions from the grid">Delete all end markers</div>
+            </p>
+
+            <p>
+                <div class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</div>
+                <button class="btn btn-primary" ng-click="savePuzzle()" ng-show="storageAvailable" title="save for later">Save puzzle</button>
+                <!--<div class="btn btn-primary" ng-click="dumpDebug()">Debug</div>-->
+            </p>
+
+        </div>
+
+        <div class="col-xs-6">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Across solutions</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="btn btn-large btn-default"
+                         ng-hide="light.deployed"
+                         draggable="true"
+                         draggable-type="light"
+                         draggable-data="light"
+                         effect-allowed="copy"
+                         ng-repeat="light in lights.items | filter: { orientation: 'across'}: true"
+                         ng-bind="light.text"></div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Down solutions</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="btn btn-large btn-default"
+                         ng-hide="light.deployed"
+                         draggable="true"
+                         draggable-type="light"
+                         draggable-data="light"
+                         effect-allowed="copy"
+                         ng-repeat="light in lights.items | filter: { orientation: 'down'}: true"
+                         ng-bind="light.text"></div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Tools</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="pull-right"
+                         drop="onTrashDrop($data, $event)" 
+                         drop-effect="copy" 
+                         drop-accept="'json/light'"><img class="tool" title="The trash can - drag words into here to delete them" src="trashcan.png" /></div>
+
+                    <div class="pull-left bar bar-right"
+                         draggable="true"
+                         draggable-type="bar"
+                         draggable-data="{right: true, bottom: false}"
+                         effect-allowed="copy"
+                         title="right end-marker - drag me onto a cell in the grid">&nbsp;</div>
+                    
+                    <div class="pull-left bar bar-bottom"
+                         draggable="true"
+                         draggable-type="bar"
+                         draggable-data="{right: false, bottom: true}"
+                         effect-allowed="copy"
+                         title="bottom end-marker - drag me onto a cell in the grid">&nbsp;</div>
+
+                    <div class="pull-left bar bar-both"
+                         draggable="true"
+                         draggable-type="bar"
+                         draggable-data="{right: true, bottom: true}"
+                         effect-allowed="copy"
+                         title="both right and bottom end-markers - drag me onto a cell in the grid">&nbsp;</div>
+
+                    <div class="pull-left bar black-light"
+                         draggable="true"
+                         draggable-type="black-light"
+                         draggable-data="{a: 0}"
+                         effect-allowed="copy"
+                         title="blacked - drag me onto a cell in the grid">&nbsp;</div>
+
+                    <div class="pull-left bar white-light"
+                         draggable="true"
+                         draggable-type="white-light"
+                         draggable-data="{a: 0}"
+                         effect-allowed="copy"
+                         title="clear black and end markers - drag me onto a cell in the grid">&nbsp;</div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <h4>Add Solution</h4>
+                </div>
+
+                <div class="panel-body">
+                    <form class="form" ng-submit="addLight()">
+                        <div class="form-group">
+                            <input type="text" ng-model="light.text" ng-trim="false" placeholder="Enter a solution..." />
+                            <select ng-model="light.orientation">
+                                <option value="across" selected>Across</option>
+                                <option value="down">Down</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Add light</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>    
+
+    <div class="row">
+        <div class="col-xs-12">
+        </div>
+    </div>
+</body>
+</html>

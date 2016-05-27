@@ -1,0 +1,24 @@
+{
+  "name": "carteblanche",
+  "authors": [
+    "PeeeDeee <paul@drurys.org>"
+  ],
+  "description": "crosswords app",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.4",
+    "bootstrap": "^3.3.6",
+    "angular": "angularjs#^1.5.5",
+    "angular-draganddrop": "^0.2.2"
+  }
+}
