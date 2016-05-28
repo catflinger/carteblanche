@@ -95,6 +95,8 @@
                      drop="onDrop($data, $event)"
                      drop-effect="copy"
                      drop-accept="['json/bar', 'json/light', 'json/white-light', 'json/black-light' ]"
+                     drag-enter="onCellDragEnter($event)"
+                     drag-leave="onCellDragLeave($event)"
                      ng-repeat="cell in grid.cells"
                      ng-style="cell.getStyle()"
                      ng-bind="cell.letter"
@@ -121,15 +123,22 @@
                 <div class="panel-heading">
                     <h4>Across solutions</h4>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body"
+                     drop="onPanelDrop($data, $event, 'across')"
+                     drop-effect="copy"
+                     drop-accept="['json/light']" >
+
                     <div class="btn btn-large btn-default"
                          ng-hide="light.deployed"
                          draggable="true"
                          draggable-type="light"
                          draggable-data="light"
                          effect-allowed="copy"
+                         drag-start="onDragStart($data, $event)"
+                         drag-end="onDragEnd($event)"
                          ng-repeat="light in lights.items | filter: { orientation: 'across'}: true"
-                         ng-bind="light.text"></div>
+                         ng-bind="light.text">
+                    </div>
                 </div>
             </div>
 
@@ -137,7 +146,11 @@
                 <div class="panel-heading">
                     <h4>Down solutions</h4>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body"
+                     drop="onPanelDrop($data, $event, 'down')"
+                     drop-effect="copy"
+                     drop-accept="['json/light']" >
+
                     <div class="btn btn-large btn-default"
                          ng-hide="light.deployed"
                          draggable="true"
@@ -145,7 +158,8 @@
                          draggable-data="light"
                          effect-allowed="copy"
                          ng-repeat="light in lights.items | filter: { orientation: 'down'}: true"
-                         ng-bind="light.text"></div>
+                         ng-bind="light.text">
+                    </div>
                 </div>
             </div>
 
@@ -157,7 +171,7 @@
                     <div class="pull-right"
                          drop="onTrashDrop($data, $event)" 
                          drop-effect="copy" 
-                         drop-accept="'json/light'"><img class="tool" title="The trash can - drag words into here to delete them" src="trashcan.png" /></div>
+                         drop-accept="'json/light'"><img class="tool" title="trash can - drag words into here to delete them" src="trashcan.png" /></div>
 
                     <div class="pull-left bar bar-right"
                          draggable="true"
@@ -192,14 +206,14 @@
                          draggable-type="white-light"
                          draggable-data="{a: 0}"
                          effect-allowed="copy"
-                         title="clear black and end markers - drag me onto a cell in the grid">&nbsp;</div>
+                         title="clear decorations - drag me onto a cell in the grid">&nbsp;</div>
                 </div>
             </div>
 
             <div class="panel panel-default">
 
                 <div class="panel-heading">
-                    <h4>Add Solution</h4>
+                    <h4>Add a solution</h4>
                 </div>
 
                 <div class="panel-body">

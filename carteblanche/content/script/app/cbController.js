@@ -51,6 +51,8 @@ angular.module("cbApp")
         orientation: ACROSS
     };
 
+    scope.dragLight = null;
+
     gridDimensions = grid.getDimensions();
     scope.gridStyle = {
         'min-width': gridDimensions.width + "px",
@@ -84,8 +86,50 @@ angular.module("cbApp")
         _redrawGrid();
     };
 
+    scope.onDragStart = function (data, event) {
+        var id;
+
+        //console.log("drag start");
+
+        grid.clearSelection();
+
+        if (data['json/light']) {
+            //find the light being dragged
+            id = data['json/light'].id;
+            scope.dragLight = lights.getLight(id);
+        }
+    };
+
+    scope.onDragEnd = function (event) {
+        scope.dragLight = null;
+        grid.clearSelection();
+    };
+
+    scope.onCellDragEnter = function (event) {
+        var cellId, cells;
+
+        //console.log("drag enter");
+
+        grid.clearSelection();
+
+        if (scope.dragLight) {
+            //find the cell being dropped on
+            cellId = event.target.id;
+            cells = grid.getCells(cellId, scope.dragLight.orientation, scope.dragLight.text.length);
+
+            cells.forEach(function (cell) {
+                cell.selected = true;
+            });
+        }
+    };
+
+    scope.onCellDragLeave = function (event) {
+        //console.log("drag leave");
+        //grid.clearSelection();
+    };
+
     scope.onDrop = function (data, event) {
-        var cell, cellId, cells, lightData, barData, lightId, light, parts, x, y;
+        var cell, cellId, cells, lightData, barData, lightId, light, parts;
 
         lights.unselectAll();
 
@@ -99,12 +143,8 @@ angular.module("cbApp")
             lightId = lightData.id;
             light = lights.getLight(lightId);
 
-            parts = cellId.split("-");
-            x = parseInt(parts[1]);
-            y = parseInt(parts[2]);
-
             //get the cells that this light will cover
-            cells = grid.getCells(x, y, light.orientation, light.text.length);
+            cells = grid.getCells(cellId, light.orientation, light.text.length);
 
             //remeber the cell selection in the light
             light.cells = cells;
@@ -114,6 +154,7 @@ angular.module("cbApp")
             cells.forEach(function (cell, index) {
                 cell.letter = light.text.charAt(index);
             });
+            grid.clearSelection();
 
         } else if (data['json/bar']) {
 
@@ -122,6 +163,7 @@ angular.module("cbApp")
 
             cell.rightbar = barData.right;
             cell.bottombar = barData.bottom;
+            grid.clearSelection();
             _drawGrid()
 
         } else if (data['json/black-light']) {
@@ -131,17 +173,35 @@ angular.module("cbApp")
             cell.rightbar = false;
             cell.bottombar = false;
             cell.black = true;
+            grid.clearSelection();
             _drawGrid()
 
         } else if (data['json/white-light']) {
 
-                cell = grid.getCell(cellId);
+            cell = grid.getCell(cellId);
 
-                cell.rightbar = false;
-                cell.bottombar = false;
-                cell.black = false;
-                _drawGrid()
+            cell.rightbar = false;
+            cell.bottombar = false;
+            cell.black = false;
+            grid.clearSelection();
+            _drawGrid()
+        }
+    };
+
+    scope.onPanelDrop = function (data, event, orientation) {
+        var id, light;
+
+        if (data['json/light']) {
+
+            //find the light being dropped
+            id = data['json/light'].id;
+
+            light = lights.getLight(id);
+
+            if (light.orientation != orientation) {
+                light.orientation = (orientation == ACROSS ? ACROSS : DOWN);
             }
+        }
     };
 
     scope.clearLights = function () {
@@ -155,9 +215,11 @@ angular.module("cbApp")
     };
 
     scope.reset = function () {
-        grid.clearDecorations();
-        lights.clear();
-        _redrawGrid();
+        if (confirm("WARNING: all data in this puzzle will be lost. Continue?")) {
+            grid.clearDecorations();
+            lights.clear();
+            _redrawGrid();
+        }
     };
 
     scope.addLight = function () {

@@ -21,7 +21,7 @@ angular
      Accepts an Angular expression.
  */
 
-function draggableDirective() {
+function draggableDirective($parse) {
   return {
     restrict: 'A',
     link: function (scope, element, attrs) {
@@ -30,6 +30,8 @@ function draggableDirective() {
       var draggableData = attrs.draggableData;
       var draggableType = attrs.draggableType;
       var draggable = attrs.draggable === 'false' ? false : true;
+      var dragStartHandler = $parse(attrs.dragStart);
+      var dragEndHandler = $parse(attrs.dragEnd);
 
       // Make element draggable or not.
       domElement.draggable = draggable;
@@ -47,8 +49,50 @@ function draggableDirective() {
         // Set drag data and drag type.
         e.dataTransfer.setData('json/' + draggableType, jsonData);
 
+        // Call dragStartHandler
+        scope.$apply(function () {
+            dragStartHandler(scope, { $data: getData(e), $event: event });
+        });
+
         e.stopPropagation();
       });
+
+      domElement.addEventListener('dragend', function (e) {
+
+          // Call dragEndHandler
+          scope.$apply(function () {
+              dragEndHandler(scope, { $event: e });
+          });
+
+          e.stopPropagation();
+      });
+
+
+        //TO DO: these are duplicated in both directives - consilidate them
+      function getData(event) {
+          var types = toArray(event.dataTransfer.types);
+
+          return types.reduce(function (collection, type) {
+              // Get data.
+              var data = event.dataTransfer.getData(type);
+
+              // Get data format.
+              var format = /(.*)\//.exec(type);
+              format = format ? format[1] : null;
+
+              // Parse data.
+              if (format === 'json') data = JSON.parse(data);
+
+              collection[type] = data;
+
+              return collection;
+          }, {});
+      }
+      function toArray(collection) {
+          return Array.prototype.slice.call(collection);
+      }
+
+
     }
   };
 }
@@ -79,24 +123,44 @@ function dropDirective($parse) {
       var dropAccept = attrs.dropAccept;
       var dragOverClass = attrs.dragOverClass;
 
+      var dragEnterHandler = $parse(attrs.dragEnter);
       var dragOverHandler = $parse(attrs.dragOver);
+      var dragLeaveHandler = $parse(attrs.dragLeave);
       var dropHandler = $parse(attrs.drop);
 
+      domElement.addEventListener('dragenter', dragEnterListener);
       domElement.addEventListener('dragover', dragOverListener);
+      domElement.addEventListener('dragleave', dragLeaveListener);
       domElement.addEventListener('drop', dropListener);
-      domElement.addEventListener('dragleave', removeDragOverClass);
 
       scope.$on('$destroy', function () {
+        domElement.removeEventListener('dragenter', dragEnterListener);
         domElement.removeEventListener('dragover', dragOverListener);
+        domElement.removeEventListener('dragleave', dragLeaveListener);
         domElement.removeEventListener('drop', dropListener);
-        domElement.removeEventListener('dragleave', removeDragOverClass);
       });
+
+      function dragEnterListener(event) {
+          // Check if type is accepted.
+          if (!accepts(scope.$eval(dropAccept), event)) return true;
+
+          // Set up drop effect to link.
+          event.dataTransfer.dropEffect = dropEffect || event.dataTransfer.dropEffect;
+
+          if (dragOverClass) element.addClass(dragOverClass);
+
+          // Call dragEnterHandler
+          scope.$apply(function () {
+              dragEnterHandler(scope, { $event: event });
+          });
+
+          // Prevent default to accept drag and drop.
+          event.preventDefault();
+      }
 
       function dragOverListener(event) {
         // Check if type is accepted.
         if (! accepts(scope.$eval(dropAccept), event)) return true;
-
-        if (dragOverClass) element.addClass(dragOverClass);
 
         // Set up drop effect to link.
         event.dataTransfer.dropEffect = dropEffect || event.dataTransfer.dropEffect;
@@ -113,7 +177,7 @@ function dropDirective($parse) {
       function dropListener(event) {
         var data = getData(event);
 
-        removeDragOverClass();
+        element.removeClass(dragOverClass);
 
         // Call dropHandler
         scope.$apply(function () {
@@ -125,11 +189,26 @@ function dropDirective($parse) {
       }
 
       /**
-       * Remove the drag over class.
+       * Drag Leave listener.
        */
 
-      function removeDragOverClass() {
-        element.removeClass(dragOverClass);
+      function dragLeaveListener() {
+
+          // Check if type is accepted.
+          if (!accepts(scope.$eval(dropAccept), event)) return true;
+
+          // Set up drop effect to link.
+          event.dataTransfer.dropEffect = dropEffect || event.dataTransfer.dropEffect;
+
+          element.removeClass(dragOverClass);
+
+          // Call dragEnterHandler
+          scope.$apply(function () {
+              dragLeaveHandler(scope, { $event: event });
+          });
+
+          // Prevent default to accept drag and drop.
+          event.preventDefault();
       }
 
       /**
