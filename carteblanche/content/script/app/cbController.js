@@ -60,19 +60,36 @@ angular.module("cbApp")
     };
 
     var _redrawGrid = function () {
+
         //reset all cells to blanks
         grid.cells.forEach(function (cell) {
             cell.letter = '';
             cell.selected = false;
         });
 
+        _redrawGridHelper(ACROSS);
+        _redrawGridHelper(DOWN);
+    };
+
+    var _redrawGridHelper = function (orientation) {
+
         //update the letters and highlight status of each grid cell
         lights.items.forEach(function (light) {
-            light.cells.forEach(function (cell, index) {
-                cell.letter = light.text.charAt(index);
-                cell.selected = cell.selected|| light.selected;
-            });
+            if (light.orientation == orientation) {
+                light.cells.forEach(function (cell, index) {
+                    if (cell.letter !== light.text.charAt(index)) {
+                        cell.letter += light.text.charAt(index);
+                    }
+                    cell.selected = cell.selected || light.selected;
+                });
+            }
         });
+    };
+
+    var _endDrag = function () {
+        scope.dragLight = null;
+        grid.clearSelection();
+        _redrawGrid();
     };
 
     scope.grid = grid;
@@ -83,7 +100,7 @@ angular.module("cbApp")
         var lightData = data['json/light'];
 
         lights.remove(lightData.id);
-        _redrawGrid();
+        _endDrag();
     };
 
     scope.onDragStart = function (data, event) {
@@ -92,6 +109,7 @@ angular.module("cbApp")
         //console.log("drag start");
 
         grid.clearSelection();
+        scope.dragLight = null;
 
         if (data['json/light']) {
             //find the light being dragged
@@ -101,25 +119,29 @@ angular.module("cbApp")
     };
 
     scope.onDragEnd = function (event) {
-        scope.dragLight = null;
-        grid.clearSelection();
+        _endDrag();
     };
 
     scope.onCellDragEnter = function (event) {
-        var cellId, cells;
+        var cellId;
 
         //console.log("drag enter");
 
         grid.clearSelection();
 
         if (scope.dragLight) {
+
             //find the cell being dropped on
             cellId = event.target.id;
-            cells = grid.getCells(cellId, scope.dragLight.orientation, scope.dragLight.text.length);
+            scope.dragLight.cells = grid.getCells(cellId, scope.dragLight.orientation, scope.dragLight.text.length);
 
-            cells.forEach(function (cell) {
+            scope.dragLight.cells.forEach(function (cell, idx) {
                 cell.selected = true;
+                cell.letter = scope.dragLight.text.charAt(idx);
+
             });
+
+            _redrawGrid();
         }
     };
 
@@ -150,12 +172,7 @@ angular.module("cbApp")
             light.cells = cells;
             light.deployed = true;
 
-            //draw the light into the grid
-            cells.forEach(function (cell, index) {
-                cell.letter = light.text.charAt(index);
-            });
-            grid.clearSelection();
-
+            _endDrag();
         } else if (data['json/bar']) {
 
             barData = data['json/bar'];
@@ -163,8 +180,8 @@ angular.module("cbApp")
 
             cell.rightbar = barData.right;
             cell.bottombar = barData.bottom;
-            grid.clearSelection();
-            _drawGrid()
+
+            _endDrag();
 
         } else if (data['json/black-light']) {
 
@@ -173,8 +190,8 @@ angular.module("cbApp")
             cell.rightbar = false;
             cell.bottombar = false;
             cell.black = true;
-            grid.clearSelection();
-            _drawGrid()
+
+            _endDrag();
 
         } else if (data['json/white-light']) {
 
@@ -183,8 +200,8 @@ angular.module("cbApp")
             cell.rightbar = false;
             cell.bottombar = false;
             cell.black = false;
-            grid.clearSelection();
-            _drawGrid()
+
+            _endDrag();
         }
     };
 
@@ -198,9 +215,12 @@ angular.module("cbApp")
 
             light = lights.getLight(id);
 
-            if (light.orientation != orientation) {
+            if (light.orientation !== orientation) {
                 light.orientation = (orientation == ACROSS ? ACROSS : DOWN);
+                light.deployed = false;
+                light.cells = [];
             }
+            _endDrag();
         }
     };
 
@@ -226,7 +246,6 @@ angular.module("cbApp")
         var txt;
 
         lights.unselectAll();
-        _redrawGrid();
 
         txt = scope.light.text.toUpperCase().replace(/\s/g, '');
         if (txt) {
@@ -234,6 +253,7 @@ angular.module("cbApp")
         }
 
         scope.light.text = "";
+        _redrawGrid();
     }
 
     scope.dumpDebug = function () {

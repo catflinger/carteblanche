@@ -8,12 +8,12 @@
     <script src="content/script/jquery.js"></script>
     <script src="content/bootstrap/js/bootstrap.js"></script>
     <script src="content/script/angular.js"></script>
-    <script src="content/script/angular-draganddrop.js"></script>
 
     <script>
         angular.module("cbApp", ["draganddrop"]);
     </script>
 
+    <script src="content/script/xwords-draganddrop.js"></script>
     <script src="content/script/app/idcounter.js"></script>
     <script src="content/script/app/lights.js"></script>
     <script src="content/script/app/grid.js"></script>
@@ -137,7 +137,7 @@
                          drag-start="onDragStart($data, $event)"
                          drag-end="onDragEnd($event)"
                          ng-repeat="light in lights.items | filter: { orientation: 'across'}: true"
-                         ng-bind="light.text">
+                         ng-bind="light.text + ' [' + light.id + ']' ">
                     </div>
                 </div>
             </div>
@@ -157,8 +157,10 @@
                          draggable-type="light"
                          draggable-data="light"
                          effect-allowed="copy"
+                         drag-start="onDragStart($data, $event)"
+                         drag-end="onDragEnd($event)"
                          ng-repeat="light in lights.items | filter: { orientation: 'down'}: true"
-                         ng-bind="light.text">
+                         ng-bind="light.text + ' [' + light.id + ']'">
                     </div>
                 </div>
             </div>
@@ -227,7 +229,7 @@
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Add light</button>
+                            <button type="submit" class="btn btn-primary">Add solution</button>
                         </div>
                     </form>
                 </div>

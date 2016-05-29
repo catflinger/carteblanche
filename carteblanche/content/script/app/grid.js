@@ -20,6 +20,7 @@ angular.module("cbApp").factory("grid", [function () {
             bottombar: data.bb ? data.bb : false,
             black: data.b ? data.b : false,
 
+            //TO DO: this should be moved up closer to the presentation tier
             getStyle: function () {
                 var result = {};
                 var backColor = 'white';
