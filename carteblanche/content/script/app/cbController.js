@@ -54,6 +54,10 @@ angular.module("cbApp")
     scope.dragLight = null;
 
     gridDimensions = grid.getDimensions();
+
+    scope.grid = grid;
+    scope.lights = lights;
+
     scope.gridStyle = {
         'min-width': gridDimensions.width + "px",
         'min-height': gridDimensions.height + "px"
@@ -91,9 +95,6 @@ angular.module("cbApp")
         grid.clearSelection();
         _redrawGrid();
     };
-
-    scope.grid = grid;
-    scope.lights = lights;
 
     scope.onTrashDrop = function (data, event) {
         //find the light being dropped

@@ -16,9 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^2.2.4",
-    "bootstrap": "^3.3.6",
-    "angular": "angularjs#^1.5.5",
-    "angular-draganddrop": "^0.2.2"
+    "angular-bootstrap": "^1.3.3",
+    "bootstrap": "^3.3.6"
   }
 }
