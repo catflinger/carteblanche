@@ -1,10 +1,7 @@
 ﻿"use strict";
 
-
 angular.module("cbApp")
-.controller("cbController", ["$scope", "lights", "grid", "idCounter", function (scope, lights, grid, idCounter) {
-
-    var data;
+.controller("cbController", ["$scope", "$uibModal", "lights", "grid", "idCounter", function (scope, modal, lights, grid, idCounter) {
     var ACROSS = 'across';
     var DOWN = 'down';
     var cookieName = "xwordscbdata";
@@ -16,34 +13,86 @@ angular.module("cbApp")
         info: ""
     };
 
-    scope.storageAvailable = false;
+    function _clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    };
 
-    if (typeof (Storage) !== "undefined") {
-        scope.storageAvailable = true;
-        cookie = localStorage.getItem(cookieName);
-    } else {
-        scope.messages.warning = "HTML5 local storage is not available on this browser. Storing your work will not be possible";
-    }
+    function _initGrid(data) {
 
-    //initialise the grid etc...
-    if (cookie) {
-        data = JSON.parse(cookie);
-    } else {
-        data = {
+        idCounter.init(data.nextId);
+
+        grid.load(data.grid);
+        lights.load(data.lights, grid);
+
+        gridDimensions = grid.getDimensions();
+        scope.gridStyle = {
+            'min-width': gridDimensions.width + "px",
+            'min-height': gridDimensions.height + "px"
+        };
+
+        scope.grid = grid;
+        scope.lights = lights;
+    };
+
+    function _initGridSettings() {
+        var data;
+
+        //set up some default data
+        var defaultSettings = {
+            cellsAcross: 12,
+            cellsDown: 12
+        };
+        var defaultData = {
             nextId: 0,
             lights: [],
             grid: {
-                cellsAcross: 12,
-                cellsDown: 12,
+                cellsAcross: defaultSettings.cellsAcross,
+                cellsDown: defaultSettings.cellsDown,
                 cells: []
             }
-        };
-    }
+        }
 
-    idCounter.init(data.nextId);
+        //see if local storage is available
+        scope.storageAvailable = false;
+        if (typeof (Storage) !== "undefined") {
+            scope.storageAvailable = true;
 
-    grid.load(data.grid);
-    lights.load(data.lights, grid);
+            //get any stored data
+            cookie = localStorage.getItem(cookieName);
+        } else {
+            scope.messages.warning = "HTML5 local storage is not available on this browser. Storing your work will not be possible";
+        }
+
+        //initialise the grid etc...
+        if (cookie) {
+            //we a previous puzzle in storage
+            data = JSON.parse(cookie);
+            _initGrid(data);
+        } else {
+
+            //starting a new puzzle
+            modal.open({
+                animation: true,
+                templateUrl: 'gridSettings.html',
+                controller: 'gridSettingsController',
+                size: 'lg',
+                resolve: {
+                    settings: function () { return _clone(defaultSettings); }
+                }
+            }).result.then(
+                function (settings) {
+                    data = _clone(defaultData);
+                    data.grid.cellsAcross = settings.cellsAcross;
+                    data.grid.cellsDown = settings.cellsDown;
+                    _initGrid(data);
+                },
+                function () {
+                    //setting change cancelled
+                    _initGrid(_clone(defaultData));
+                }
+            );
+        }
+    };
 
     //for creating new lights
     scope.light = {
@@ -53,17 +102,7 @@ angular.module("cbApp")
 
     scope.dragLight = null;
 
-    gridDimensions = grid.getDimensions();
-
-    scope.grid = grid;
-    scope.lights = lights;
-
-    scope.gridStyle = {
-        'min-width': gridDimensions.width + "px",
-        'min-height': gridDimensions.height + "px"
-    };
-
-    var _redrawGrid = function () {
+    function _redrawGrid() {
 
         //reset all cells to blanks
         grid.cells.forEach(function (cell) {
@@ -75,7 +114,7 @@ angular.module("cbApp")
         _redrawGridHelper(DOWN);
     };
 
-    var _redrawGridHelper = function (orientation) {
+    function _redrawGridHelper(orientation) {
 
         //update the letters and highlight status of each grid cell
         lights.items.forEach(function (light) {
@@ -90,7 +129,7 @@ angular.module("cbApp")
         });
     };
 
-    var _endDrag = function () {
+    function _endDrag() {
         scope.dragLight = null;
         grid.clearSelection();
         _redrawGrid();
@@ -237,9 +276,14 @@ angular.module("cbApp")
 
     scope.reset = function () {
         if (confirm("WARNING: all data in this puzzle will be lost. Continue?")) {
+            if (scope.storageAvailable) {
+                localStorage.removeItem(cookieName);
+            }
             grid.clearDecorations();
             lights.clear();
             _redrawGrid();
+
+            scope.messages.info = "puzzle reset";
         }
     };
 
@@ -322,5 +366,7 @@ angular.module("cbApp")
         _redrawGrid();
     };
 
-}]);
+    //kick it all off with the settings dialog...
+    _initGridSettings();
+}]); 
 

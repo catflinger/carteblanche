@@ -1,7 +1,7 @@
 /*! Angular draganddrop v0.2.2 | (c) 2013 Greg Bergé | License MIT */
 
 angular
-.module('draganddrop', [])
+.module('cbApp')
 .directive('draggable', draggableDirective)
 .directive('drop', ['$parse', dropDirective]);
 
