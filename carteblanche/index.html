@@ -5,22 +5,29 @@
 
     <link rel="stylesheet" href="content/bootstrap/css/bootstrap.css">
 
-    <script src="content/script/angular.js"></script>
-    <script src="content/script/ui-bootstrap-tpls.js"></script>
-    <script src="content/script/angular-animate.js"></script>
+    <script src="content/script/angular.min.js"></script>
+    <script src="content/script/ui-bootstrap-tpls.min.js"></script>
+    <script src="content/script/angular-animate.min.js"></script>
 
     <script>
         angular.module("cbApp", ["ngAnimate", "ui.bootstrap"]);
     </script>
 
-    <script src="content/script/app/xwords-draganddrop.js"></script>
+    <script src="content/script/DragDropTouch.js"></script>
+    <script src="content/script/app/drag-and-drop.js"></script>
     <script src="content/script/app/idcounter.js"></script>
     <script src="content/script/app/lights.js"></script>
     <script src="content/script/app/grid.js"></script>
     <script src="content/script/app/cbController.js"></script>
     <script src="content/script/app/settingsController.js"></script>
+    <script src="content/script/app/settingsController.js"></script>
+    <script src="content/script/app/go-to-birdmint-directive.js"></script>
 
     <style type="text/css">
+
+        .panel-body {
+            width:100%;
+        }
 
         .grid{
             margin-bottom: 20px;
@@ -72,6 +79,7 @@
 
 
 </head>
+
 <body class="container" ng-app="cbApp" ng-controller="cbController">
     
     <div class="alert alert-warning" ng-show="messages.warning">
@@ -83,7 +91,7 @@
         <div class="btn btn-primary" ng-click="dismissMessages()">Close</div>
     </div>
     <h2>Carte Blanche</h2>
-    
+
     <div class="row">
 
         <div class="col-xs-6">
@@ -91,75 +99,77 @@
             <div class="grid" ng-style="gridStyle" title="drag solutions onto the grid">
 
                 <div class="gridCell"
-                     ng-attr="cell.id"
                      id="{{cell.id}}"
-                     drop="onDrop($data, $event)"
-                     drop-effect="copy"
-                     drop-accept="['json/bar', 'json/light', 'json/white-light', 'json/black-light' ]"
-                     drag-enter="onCellDragEnter($event)"
-                     drag-leave="onCellDragLeave($event)"
+
+                     ng-attr="cell.id"
                      ng-repeat="cell in grid.cells"
                      ng-style="cell.getStyle()"
                      ng-bind="cell.letter"
-                     ng-click="onCellClick(cell.id)">
+                     ng-click="onCellClick(cell.id)"
+                     
+                     droppable
+                     drop="onDrop(data, dataType, event)"
+                     drop-accepts="light,black-light,white-light,bar"
+                     drag-enter="onCellDragEnter(data, dataType, event)"
+                     drag-leave="onCellDragLeave(data, dataType, event)">
+
                 </div>
             </div>
 
-            <p>
+            <div>
                 <div class="btn btn-primary" ng-click="clearLights()" title="remove the solutions from the grid">Remove all letters</div>
                 <div class="btn btn-primary" ng-click="clearDecorations()" title="remove the decorations from the grid">Remove all decorations</div>
-            </p>
+            </div>
 
-            <p>
+            <div>
                 <div class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</div>
                 <button class="btn btn-primary" ng-click="savePuzzle()" ng-show="storageAvailable" title="save for later">Save puzzle</button>
-                <!--<div class="btn btn-primary" ng-click="dumpDebug()">Debug</div>-->
-            </p>
+            </div>
 
         </div>
 
         <div class="col-xs-6">
 
             <div class="panel panel-default">
+                
                 <div class="panel-heading">
                     <h4>Across solutions</h4>
                 </div>
                 <div class="panel-body"
-                     drop="onPanelDrop($data, $event, 'across')"
-                     drop-effect="copy"
-                     drop-accept="['json/light']" >
+                    droppable
+                    drop-accepts="light"
+                    drop="onPanelDrop(data, dataType, event, 'across')">
 
-                    <div class="btn btn-large btn-default"
-                         ng-hide="light.deployed"
-                         draggable="true"
-                         draggable-type="light"
-                         draggable-data="light"
-                         effect-allowed="copy"
-                         drag-start="onDragStart($data, $event)"
-                         drag-end="onDragEnd($event)"
-                         ng-repeat="light in lights.items | filter: { orientation: 'across'}: true"
-                         ng-bind="light.text">
-                    </div>
+                        <div class="btn btn-large btn-default"
+                             ng-hide="light.deployed"
+                             ng-repeat="light in lights.items | filter: { orientation: 'across'}: true"
+                             draggable
+                             drag-data="{light: light}"
+                             drag-data-type="light"
+                             drag-start="onDragStart(data, dataType, event)"
+                             drag-end="onDragEnd(data, dataType, event)"
+                             ng-bind="light.text">
+                        </div>
                 </div>
             </div>
 
             <div class="panel panel-default">
+
                 <div class="panel-heading">
                     <h4>Down solutions</h4>
                 </div>
                 <div class="panel-body"
-                     drop="onPanelDrop($data, $event, 'down')"
-                     drop-effect="copy"
-                     drop-accept="['json/light']" >
+                     droppable
+                     drop-accepts="light"
+                     drop="onPanelDrop(data, dataType, event, 'down')">
 
                     <div class="btn btn-large btn-default"
                          ng-hide="light.deployed"
                          draggable="true"
-                         draggable-type="light"
-                         draggable-data="light"
-                         effect-allowed="copy"
-                         drag-start="onDragStart($data, $event)"
-                         drag-end="onDragEnd($event)"
+                         drag-data-type="light"
+                         drag-data="{light: light}"
+                         drag-start="onDragStart(data, dataType, event)"
+                         drag-end="onDragEnd(data, dataType, event)"
                          ng-repeat="light in lights.items | filter: { orientation: 'down'}: true"
                          ng-bind="light.text">
                     </div>
@@ -172,42 +182,36 @@
                 </div>
                 <div class="panel-body">
                     <div class="pull-right"
-                         drop="onTrashDrop($data, $event)" 
-                         drop-effect="copy" 
-                         drop-accept="'json/light'"><img class="tool" title="trash can - drag words into here to delete them" src="trashcan.png" /></div>
+                         droppable
+                         drop="onTrashDrop(data, dataType, event)" 
+                         drop-accepts="light"><img class="tool" title="trash can - drag words into here to delete them" src="trashcan.png" /></div>
 
                     <div class="pull-left bar bar-right"
-                         draggable="true"
-                         draggable-type="bar"
-                         draggable-data="{right: true, bottom: false}"
-                         effect-allowed="copy"
+                         draggable
+                         drag-data="{right: true, bottom: false}"
+                         drag-data-type="bar"
                          title="right end-marker - drag me onto a cell in the grid">&nbsp;</div>
                     
                     <div class="pull-left bar bar-bottom"
-                         draggable="true"
-                         draggable-type="bar"
-                         draggable-data="{right: false, bottom: true}"
-                         effect-allowed="copy"
+                         draggable
+                         drag-data="{ right: false, bottom: true}"
+                         drag-data-type="bar"
                          title="bottom end-marker - drag me onto a cell in the grid">&nbsp;</div>
 
                     <div class="pull-left bar bar-both"
-                         draggable="true"
-                         draggable-type="bar"
-                         draggable-data="{right: true, bottom: true}"
-                         effect-allowed="copy"
+                         draggable
+                         drag-data="{right: true, bottom: true}"
+                         drag-data-type="bar"
                          title="both right and bottom end-markers - drag me onto a cell in the grid">&nbsp;</div>
 
                     <div class="pull-left bar black-light"
-                         draggable="true"
-                         draggable-type="black-light"
-                         draggable-data="{a: 0}"
-                         effect-allowed="copy"
+                         draggable
+                         drag-data-type="black-light"
                          title="blacked - drag me onto a cell in the grid">&nbsp;</div>
 
                     <div class="pull-left bar white-light"
-                         draggable="true"
-                         draggable-type="white-light"
-                         draggable-data="{a: 0}"
+                         draggable
+                         drag-data-type="white-light"
                          effect-allowed="copy"
                          title="clear decoration - drag me onto a cell in the grid">&nbsp;</div>
                 </div>

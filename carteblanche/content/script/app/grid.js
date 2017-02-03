@@ -71,13 +71,13 @@ angular.module("cbApp").factory("grid", [function () {
             x = cell.x;
             y = cell.y;
 
-            if (direction == ACROSS) {
+            if (direction === ACROSS) {
                 for (i = 0; i < len && x + i < _cellsAcross; i++) {
-                    result.push(_cells[y * _cellsDown + x + i]);
+                    result.push(_cells[y * _cellsAcross + x + i]);
                 }
             } else {
                 for (i = 0; i < len && y + i < _cellsDown; i++) {
-                    result.push(_cells[(y + i) * _cellsDown + x]);
+                    result.push(_cells[(y + i) * _cellsAcross + x]);
                 }
             }
         }

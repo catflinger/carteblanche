@@ -100,8 +100,6 @@ angular.module("cbApp")
         orientation: ACROSS
     };
 
-    scope.dragLight = null;
-
     function _redrawGrid() {
 
         //reset all cells to blanks
@@ -130,54 +128,53 @@ angular.module("cbApp")
     };
 
     function _endDrag() {
-        scope.dragLight = null;
+        //scope.dragLight = null;
         grid.clearSelection();
         _redrawGrid();
     };
 
-    scope.onTrashDrop = function (data, event) {
-        //find the light being dropped
-        var lightData = data['json/light'];
-
-        lights.remove(lightData.id);
+    scope.onTrashDrop = function (data, dataType, event) {
+        lights.remove(data.light.id);
         _endDrag();
     };
 
-    scope.onDragStart = function (data, event) {
+    scope.onDragStart = function (data, dataType, event) {
         var id;
 
         //console.log("drag start");
 
         grid.clearSelection();
-        scope.dragLight = null;
+        //scope.dragLight = null;
 
-        if (data['json/light']) {
-            //find the light being dragged
-            id = data['json/light'].id;
-            scope.dragLight = lights.getLight(id);
-        }
+        //if (data.type === 'light') {
+        //    //find the light being dragged
+        //    id = data.light.id;
+        //    scope.dragLight = lights.getLight(id);
+        //}
     };
 
-    scope.onDragEnd = function (event) {
+    scope.onDragEnd = function () {
         _endDrag();
     };
 
-    scope.onCellDragEnter = function (event) {
-        var cellId;
+    scope.onCellDragEnter = function (data, dataType, event) {
+        var cellId, light;
 
         //console.log("drag enter");
 
         grid.clearSelection();
 
-        if (scope.dragLight) {
+        if (dataType === 'light') {
 
             //find the cell being dropped on
             cellId = event.target.id;
-            scope.dragLight.cells = grid.getCells(cellId, scope.dragLight.orientation, scope.dragLight.text.length);
+            light = data.light;
 
-            scope.dragLight.cells.forEach(function (cell, idx) {
+            light.cells = grid.getCells(cellId, light.orientation, light.text.length);
+
+            light.cells.forEach(function (cell, idx) {
                 cell.selected = true;
-                cell.letter = scope.dragLight.text.charAt(idx);
+                cell.letter = light.text.charAt(idx);
 
             });
 
@@ -185,12 +182,12 @@ angular.module("cbApp")
         }
     };
 
-    scope.onCellDragLeave = function (event) {
+    scope.onCellDragLeave = function (data, dataType, event) {
         //console.log("drag leave");
         //grid.clearSelection();
     };
 
-    scope.onDrop = function (data, event) {
+    scope.onDrop = function (data, dataType, event) {
         var cell, cellId, cells, lightData, barData, lightId, light, parts;
 
         lights.unselectAll();
@@ -198,11 +195,10 @@ angular.module("cbApp")
         //find the cell being dropped on
         cellId = event.target.id;
 
-        if (data['json/light']) {
+        if (dataType === 'light') {
 
             //find the light being dropped
-            lightData = data['json/light'];
-            lightId = lightData.id;
+            lightId = data.light.id;
             light = lights.getLight(lightId);
 
             //get the cells that this light will cover
@@ -213,17 +209,18 @@ angular.module("cbApp")
             light.deployed = true;
 
             _endDrag();
-        } else if (data['json/bar']) {
 
-            barData = data['json/bar'];
+    } else if (dataType === 'bar') {
+
             cell = grid.getCell(cellId);
 
-            cell.rightbar = barData.right;
-            cell.bottombar = barData.bottom;
+            cell.rightbar = data.right;
+            cell.bottombar = data.bottom;
+
 
             _endDrag();
 
-        } else if (data['json/black-light']) {
+        } else if (dataType === 'black-light') {
 
             cell = grid.getCell(cellId);
 
@@ -233,7 +230,7 @@ angular.module("cbApp")
 
             _endDrag();
 
-        } else if (data['json/white-light']) {
+        } else if (dataType === 'white-light') {
 
             cell = grid.getCell(cellId);
 
@@ -245,15 +242,14 @@ angular.module("cbApp")
         }
     };
 
-    scope.onPanelDrop = function (data, event, orientation) {
+    scope.onPanelDrop = function (data, dataType, event, orientation) {
         var id, light;
 
-        if (data['json/light']) {
-
+        if (dataType === 'light') {
             //find the light being dropped
-            id = data['json/light'].id;
+            //id = data.light.id;
 
-            light = lights.getLight(id);
+            light = data.light;
 
             if (light.orientation !== orientation) {
                 light.orientation = (orientation == ACROSS ? ACROSS : DOWN);
