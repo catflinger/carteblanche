@@ -40,7 +40,8 @@ angular.module("cbApp")
         //set up some default data
         var defaultSettings = {
             cellsAcross: 12,
-            cellsDown: 12
+            cellsDown: 12,
+            hasSymmetry: true
         };
         var defaultData = {
             nextId: 0,
@@ -48,6 +49,7 @@ angular.module("cbApp")
             grid: {
                 cellsAcross: defaultSettings.cellsAcross,
                 cellsDown: defaultSettings.cellsDown,
+                hasSymmetry: defaultSettings.hasSymmetry,
                 cells: []
             }
         }
@@ -84,6 +86,7 @@ angular.module("cbApp")
                     data = _clone(defaultData);
                     data.grid.cellsAcross = settings.cellsAcross;
                     data.grid.cellsDown = settings.cellsDown;
+                    data.grid.hasSymmetry = settings.hasSymmetry;
                     _initGrid(data);
                 },
                 function () {

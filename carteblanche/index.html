@@ -258,6 +258,12 @@
                     <input id="txtCellsDown" type="number" min="5" max="25" ng-model="settings.cellsDown" class="form-control" />
                 </div>
             </form>
+            <div class="form-group">
+                <label>
+                    Grid is symmetrical:
+                    <input type="checkbox" ng-model="settings.hasSymmetry">
+                </label><br />
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" type="button" ng-click="onOk()">OK</button>

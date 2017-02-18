@@ -245,7 +245,7 @@ angular.module("cbApp").factory("grid", [function () {
 
         _cellsAcross = data.cellsAcross;
         _cellsDown = data.cellsDown;
-        _hasSymmetry: data.hasSymmetry ? data.hasSymmetry : true;
+        _hasSymmetry = data.hasSymmetry ? data.hasSymmetry : false;
 
         if (data.cells.length > 0) {
             data.cells.forEach(function (cellData) {
@@ -273,6 +273,7 @@ angular.module("cbApp").factory("grid", [function () {
         var result = {
             cellsAcross: _cellsAcross,
             cellsDown: _cellsDown,
+            hasSymmetry: _hasSymmetry,
             cells: []
         };
 
