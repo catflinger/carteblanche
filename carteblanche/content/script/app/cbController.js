@@ -210,34 +210,19 @@ angular.module("cbApp")
 
             _endDrag();
 
-    } else if (dataType === 'bar') {
+        } else if (dataType === 'bar') {
 
-            cell = grid.getCell(cellId);
-
-            cell.rightbar = data.right;
-            cell.bottombar = data.bottom;
-
-
+            grid.addDecoration(cellId, data.right, data.bottom, false);
             _endDrag();
 
         } else if (dataType === 'black-light') {
 
-            cell = grid.getCell(cellId);
-
-            cell.rightbar = false;
-            cell.bottombar = false;
-            cell.black = true;
-
+            grid.addDecoration(cellId, false, false, true);
             _endDrag();
 
         } else if (dataType === 'white-light') {
 
-            cell = grid.getCell(cellId);
-
-            cell.rightbar = false;
-            cell.bottombar = false;
-            cell.black = false;
-
+            grid.clearDecoration(cellId);
             _endDrag();
         }
     };
