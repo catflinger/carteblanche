@@ -8,6 +8,7 @@
     <script src="content/script/angular.min.js"></script>
     <script src="content/script/ui-bootstrap-tpls.min.js"></script>
     <script src="content/script/angular-animate.min.js"></script>
+    <script src="content/script/angular-route.min.js"></script>
 
     <script>
         angular.module("cbApp", ["ngAnimate", "ui.bootstrap"]);
@@ -220,7 +221,7 @@
                 <div class="panel-body">
                     <form class="form" ng-submit="addLight()">
                         <div class="form-group">
-                            <input type="text" ng-model="light.text" ng-trim="false" placeholder="Enter a solution..." />
+                            <input id="txtAddLight" type="text" ng-model="light.text" ng-trim="false" placeholder="Enter a solution..." />
                             <select ng-model="light.orientation">
                                 <option value="across" selected>Across</option>
                                 <option value="down">Down</option>
@@ -255,11 +256,11 @@
             <form>
                 <div class="form-group">
                     <label for="txtCellsAcross">Cells across</label>
-                    <input id="txtCellsAcross" type="number" min="5" max="25" ng-model="settings.cellsAcross" class="form-control" />
+                    <input id="txtCellsAcross" type="number" min="1" max="25" ng-model="settings.cellsAcross" class="form-control" />
                 </div>
                 <div class="form-group">
                     <label for="txtCellsDown">Cells down</label>
-                    <input id="txtCellsDown" type="number" min="5" max="25" ng-model="settings.cellsDown" class="form-control" />
+                    <input id="txtCellsDown" type="number" min="1" max="25" ng-model="settings.cellsDown" class="form-control" />
                 </div>
             </form>
             <div class="form-group">

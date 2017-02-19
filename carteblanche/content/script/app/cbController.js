@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 angular.module("cbApp")
-.controller("cbController", ["$scope", "$uibModal", "lights", "grid", "idCounter", function (scope, modal, lights, grid, idCounter) {
+.controller("cbController", ["$scope", "$window", "$uibModal", "lights", "grid", "idCounter", function (scope, window, modal, lights, grid, idCounter) {
     var ACROSS = 'across';
     var DOWN = 'down';
     var cookieName = "xwordscbdata";
@@ -277,13 +277,8 @@ angular.module("cbApp")
             if (scope.storageAvailable) {
                 localStorage.removeItem(cookieName);
             }
-            grid.clearDecorations();
-            lights.clear();
-            _redrawGrid();
-
-            scope.messages.info = "puzzle reset";
             _clearChangeFlag();
-
+            window.location.reload();
         }
     };
 
@@ -297,8 +292,11 @@ angular.module("cbApp")
             lights.addLight(txt, scope.light.orientation);
         }
 
-        scope.light.text = "";
         _redrawGrid();
+        
+        //set focus back to the input for the next light to be added
+        scope.light.text = "";
+        window.document.getElementById("txtAddLight").focus();
 
         _setChangeFlag();
 
@@ -354,7 +352,7 @@ angular.module("cbApp")
                 _setChangeFlag();
             }
 
-        } else if (cell.letter.length > 0) {
+        } else if (cell.letter && cell.letter.length > 0) {
             //user has clicked on an unselected cell that is part of deployed light
             lts = lights.getLightsForCell(cellId);
 

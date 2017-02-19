@@ -197,7 +197,7 @@ angular.module("cbApp").factory("grid", [function () {
 
     //gets an array of cells from the grid
     var _getCells = function (cellId, direction, len) {
-        var cell, i, x, y;
+        var cell, i, j, x, y;
         var result = [];
 
         cell = _getCell(cellId);
@@ -267,7 +267,6 @@ angular.module("cbApp").factory("grid", [function () {
         }
     }
 
-    //TO DO: rename this function
     var _toJson = function () {
 
         var result = {
@@ -292,6 +291,16 @@ angular.module("cbApp").factory("grid", [function () {
         return result;
     };
 
+    var _reset = function () {
+        var _cellsAcross = 0;
+        var _cellsDown = 0;
+        var _cellSize = 30;
+        var _cells = [];
+        var ACROSS = 'across';
+        var DOWN = 'down';
+        var _hasSymmetry = true;
+    };
+
 
     return {
         load: _load,
@@ -304,7 +313,8 @@ angular.module("cbApp").factory("grid", [function () {
         getCells: _getCells,
         getCell: _getCell,
         getDimensions: _getDimensions,
-        toJson: _toJson
+        toJson: _toJson,
+        reset: _reset
     }
 
 }]);
