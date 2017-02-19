@@ -21,7 +21,6 @@
     <script src="content/script/app/cbController.js"></script>
     <script src="content/script/app/settingsController.js"></script>
     <script src="content/script/app/settingsController.js"></script>
-    <script src="content/script/app/go-to-birdmint-directive.js"></script>
 
     <style type="text/css">
 
@@ -119,11 +118,6 @@
             <div>
                 <div class="btn btn-primary" ng-click="clearLights()" title="remove the solutions from the grid">Remove all letters</div>
                 <div class="btn btn-primary" ng-click="clearDecorations()" title="remove the decorations from the grid">Remove all decorations</div>
-            </div>
-
-            <div>
-                <div class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</div>
-                <button class="btn btn-primary" ng-click="savePuzzle()" ng-show="storageAvailable" title="save for later">Save puzzle</button>
             </div>
 
         </div>
@@ -242,6 +236,16 @@
 
         </div>
     </div>    
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</div>
+                <button class="btn btn-primary" ng-click="savePuzzle()" ng-show="storageAvailable" title="save for later">Save puzzle</button>
+            </div>
+        </div>
+
+    </div>
 
     <script type="text/ng-template" id="gridSettings.html">
         <div class="modal-header">

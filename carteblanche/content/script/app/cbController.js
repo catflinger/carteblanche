@@ -139,6 +139,8 @@ angular.module("cbApp")
     scope.onTrashDrop = function (data, dataType, event) {
         lights.remove(data.light.id);
         _endDrag();
+
+        _setChangeFlag();
     };
 
     scope.onDragStart = function (data, dataType, event) {
@@ -228,6 +230,9 @@ angular.module("cbApp")
             grid.clearDecoration(cellId);
             _endDrag();
         }
+
+        _setChangeFlag();
+
     };
 
     scope.onPanelDrop = function (data, dataType, event, orientation) {
@@ -246,16 +251,25 @@ angular.module("cbApp")
             }
             _endDrag();
         }
+
+        _setChangeFlag();
+
     };
 
     scope.clearLights = function () {
         lights.undeployAll();
         _redrawGrid();
+
+        _setChangeFlag();
+
     };
 
     scope.clearDecorations = function () {
         grid.clearDecorations();
         _redrawGrid();
+
+        _setChangeFlag();
+
     };
 
     scope.reset = function () {
@@ -268,6 +282,8 @@ angular.module("cbApp")
             _redrawGrid();
 
             scope.messages.info = "puzzle reset";
+            _clearChangeFlag();
+
         }
     };
 
@@ -283,6 +299,9 @@ angular.module("cbApp")
 
         scope.light.text = "";
         _redrawGrid();
+
+        _setChangeFlag();
+
     }
 
     scope.dumpDebug = function () {
@@ -310,6 +329,8 @@ angular.module("cbApp")
 
         localStorage.setItem(cookieName, JSON.stringify(cookie));
 
+        _clearChangeFlag();
+
         scope.messages.info = "puzzle saved";
     };
 
@@ -330,6 +351,7 @@ angular.module("cbApp")
             if (lts.length > 0) {
                 lts[0].undeploy();
                 lts[0].selected = false;
+                _setChangeFlag();
             }
 
         } else if (cell.letter.length > 0) {
@@ -350,7 +372,38 @@ angular.module("cbApp")
         _redrawGrid();
     };
 
+    var _setChangeFlag = function () {
+        // add the exit warning
+        if (!window.onbeforeunload) {
+            window.onbeforeunload = confirmOnPageExit;
+        }
+    }
+
+    var _clearChangeFlag = function () {
+        // add the exit warning
+        if (window.onbeforeunload) {
+            window.onbeforeunload = null;
+        }
+    }
+
+    //callback for unsaved changes warning
+    var confirmOnPageExit = function (e) {
+        // If we haven't been passed the event get the window.event
+        e = e || window.event;
+
+        var message = 'Warning: you have unsaved changes.  Leave this page anyway?';
+
+        // For IE6-8 and Firefox prior to version 4
+        if (e) {
+            e.returnValue = message;
+        }
+
+        // For Chrome, Safari, IE8+ and Opera 12+
+        return message;
+    };
+
     //kick it all off with the settings dialog...
     _initGridSettings();
+
 }]); 
 
