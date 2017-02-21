@@ -8,7 +8,6 @@
     <script src="content/script/angular.min.js"></script>
     <script src="content/script/ui-bootstrap-tpls.min.js"></script>
     <script src="content/script/angular-animate.min.js"></script>
-    <script src="content/script/angular-route.min.js"></script>
 
     <script>
         angular.module("cbApp", ["ngAnimate", "ui.bootstrap"]);
@@ -99,19 +98,21 @@
             <div class="grid" ng-style="gridStyle" title="drag solutions onto the grid">
 
                 <div class="gridCell"
-                     id="{{cell.id}}"
+                    id="{{cell.id}}"
 
-                     ng-attr="cell.id"
-                     ng-repeat="cell in grid.cells"
-                     ng-style="cell.getStyle()"
-                     ng-bind="cell.letter"
-                     ng-click="onCellClick(cell.id)"
-                     
-                     droppable
-                     drop="onDrop(data, dataType, event)"
-                     drop-accepts="light,black-light,white-light,bar"
-                     drag-enter="onCellDragEnter(data, dataType, event)"
-                     drag-leave="onCellDragLeave(data, dataType, event)">
+                    ng-attr="cell.id"
+                    ng-repeat="cell in grid.cells"
+                    ng-style="cell.getStyle()"
+                    ng-bind="cell.letter"
+                    ng-click="onCellClick(cell.id)"
+                    
+                    droppable
+                    drop="onDrop(data, dataType, event)"
+                    drop-accepts="light,black-light,white-light,bar"
+                    drag-enter="onCellDragEnter(data, dataType, event)"
+                    drag-leave="onCellDragLeave(data, dataType, event)"
+
+                     >
 
                 </div>
             </div>

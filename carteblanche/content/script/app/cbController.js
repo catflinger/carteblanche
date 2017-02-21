@@ -146,20 +146,20 @@ angular.module("cbApp")
     scope.onDragStart = function (data, dataType, event) {
         var id;
 
-        //console.log("drag start");
+        console.log("drag start");
 
-        grid.clearSelection();
-        //scope.dragLight = null;
+        if (dataType == "light") {
+            grid.clearSelection();
+        }
 
-        //if (data.type === 'light') {
-        //    //find the light being dragged
-        //    id = data.light.id;
-        //    scope.dragLight = lights.getLight(id);
-        //}
     };
 
-    scope.onDragEnd = function () {
-        _endDrag();
+    scope.onDragEnd = function (data, dataType, event) {
+        console.log("drag end");
+
+        if (dataType == "light") {
+            _endDrag();
+        }
     };
 
     scope.onCellDragEnter = function (data, dataType, event) {
