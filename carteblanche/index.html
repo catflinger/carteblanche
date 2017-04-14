@@ -20,7 +20,7 @@
     <script src="content/script/app/grid.js"></script>
     <script src="content/script/app/cbController.js"></script>
     <script src="content/script/app/settingsController.js"></script>
-    <script src="content/script/app/settingsController.js"></script>
+    <script src="content/script/app/gridImageController.js"></script>
 
     <style type="text/css">
         .panel-body {
@@ -77,6 +77,7 @@
             height: 50px;
             width: 50px;
         }
+
     </style>
 
 
@@ -253,12 +254,15 @@
     <div class="row">
         <div class="col-sm-12">
             <div>
-                <div class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</div>
+                <button class="btn btn-primary" ng-click="reset()" title="delete everything and start again">Reset</button>
                 <button class="btn btn-primary" ng-click="savePuzzle()" ng-show="storageAvailable" title="save for later">Save puzzle</button>
+                <button class="btn btn-primary" ng-click="saveImage()" title="download an image of the completed grid">Make Image</button>
             </div>
         </div>
 
     </div>
+
+    <canvas id="gridCanvas" width="0" height="0" ng-attr-width="{{grid.getDimensions().width}}" ng-attr-height="{{grid.getDimensions().height}}" style="display:none;"></canvas>
 
     <script type="text/ng-template" id="gridSettings.html">
         <div class="modal-header">
@@ -285,6 +289,19 @@
         <div class="modal-footer">
             <button class="btn btn-primary" type="button" ng-click="onOk()">OK</button>
             <button class="btn btn-warning" type="button" ng-click="onCancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="gridImage.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Save grid image</h3>
+        </div>
+        <div class="modal-body">
+            <img src="" ng-src="{{url}}" />
+        </div>
+        <div class="modal-footer">
+            <span>To save the grid as an image right-click the grid above choose "Save as..."</span>
+            <button class="btn btn-primary" type="button" ng-click="onOk()">Close</button>
         </div>
     </script>
 

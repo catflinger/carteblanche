@@ -332,6 +332,74 @@ angular.module("cbApp")
         scope.messages.info = "puzzle saved";
     };
 
+    function makeImage() {
+        var cvs = document.getElementById("gridCanvas");
+        var ctx = cvs.getContext('2d');
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "20px sans-serif"
+        ctx.strokeStyle = "black";
+        ctx.fillStyle = "white";
+
+        //clear any existing drawing
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+        grid.cells.forEach(function (cell) {
+
+            //move to position for this cell
+            ctx.setTransform(1, 0, 0, 1, cell.x * grid.cellSize, cell.y * grid.cellSize);
+
+            //draw the background
+            ctx.fillStyle = cell.black ? "black" : "white";
+            ctx.fillRect(0, 0, grid.cellSize, grid.cellSize);
+
+            //draw the border
+            ctx.fillStyle = "black";
+            ctx.strokeRect(0, 0, grid.cellSize, grid.cellSize);
+
+            //draw the bars
+            if (cell.rightbar) {
+                ctx.fillRect(grid.cellSize - 3, 0, 3, grid.cellSize);
+
+            }
+            if (cell.bottombar) {
+                ctx.fillRect(0, grid.cellSize - 3, grid.cellSize, 3);
+
+            }
+
+            //draw the text
+            if (cell.letter) {
+                ctx.fillText(cell.letter, grid.cellSize / 2, grid.cellSize / 2);
+            }
+        });
+
+        return cvs.toDataURL();
+    }
+
+    scope.saveImage = function () {
+
+        //show a dialog containing the image to copy
+        modal.open({
+            animation: true,
+            templateUrl: 'gridImage.html',
+            controller: 'gridImageController',
+            size: 'lg',
+            resolve: {
+                url: function () {
+                    return makeImage();
+                }
+            }
+        }).result.then(
+            function () {
+                //do we need to do anything here?
+            },
+            function () {
+                //do we need to do anything here?
+            }
+        );
+    }
+
     scope.dismissMessages = function () {
         scope.messages.info = "";
         scope.messages.warning = "";

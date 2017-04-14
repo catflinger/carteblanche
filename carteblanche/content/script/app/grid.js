@@ -40,6 +40,7 @@ angular.module("cbApp").factory("grid", [function () {
 
                 return result;
             }
+
         };
     }
 
@@ -312,6 +313,7 @@ angular.module("cbApp").factory("grid", [function () {
         clearDecorations: _clearDecorations,
         getCells: _getCells,
         getCell: _getCell,
+        cellSize: _cellSize,
         getDimensions: _getDimensions,
         toJson: _toJson,
         reset: _reset

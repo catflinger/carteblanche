@@ -1,0 +1,46 @@
+﻿
+        .svg-grid {
+            display:block;
+        }
+        .svg-cell {
+            width: 30px;
+            height: 30px;
+            stroke: black;
+            fill:white;
+        }
+        .svg-black {
+            stroke: black;
+            fill: black;
+        }
+        .svg-hidden {
+            display:none;
+        }
+        .svg-letter {
+            text-anchor: middle;
+            fill: black;
+            font-size:20px;
+            font-family:sans-serif;
+        }
+
+
+<svg width="0" height="0" ng-attr-width="{{grid.getDimensions().width}}" ng-attr-height="{{grid.getDimensions().height}}" class="svg-grid">
+
+    <g ng-repeat="cell in grid.cells" ng-attr-transform="translate({{cell.x * 30}}, {{cell.y * 30}})">
+
+        <!-- grid cell -->
+        <rect width="0"
+              height="0"
+              x="0"
+              y="0"
+              ng-class="['svg-cell', { 'svg-black': cell.black }]"></rect>
+
+        <!-- right bar -->
+        <rect width="3" height="30" x="27" y="0" ng-class="['svg-black', {'svg-hidden': !cell.rightbar}]"></rect>
+
+        <!-- bottom bar -->
+        <rect width="30" height="3" x="0" y="27" ng-class="['svg-black', {'svg-hidden': !cell.bottombar}]"></rect>
+
+        <!-- cell text -->
+        <text x="15" y="23" class="svg-letter">{{cell.letter}}</text>
+    </g>
+</svg>
